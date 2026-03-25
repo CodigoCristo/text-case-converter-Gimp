@@ -27,11 +27,21 @@ def msg(es, en):
     return es if ESPAÑOL else en
 
 
-def convertir_texto(image, modo):
-    capas = image.get_selected_drawables()
+def convertir_texto(image, drawables, modo):
+    # Prioridad: drawables recibidos → selected → activa
+    capas = list(drawables) if drawables else []
+
+    if not capas:
+        capas = list(image.get_selected_drawables() or [])
+
     if not capas:
         activa = image.get_active_drawable()
-        capas = [activa] if activa else []
+        if activa:
+            capas = [activa]
+
+    if not capas:
+        Gimp.message(msg("No hay capas seleccionadas.", "No layers selected."))
+        return
 
     capas_texto = [c for c in capas if c.is_text_layer()]
 
@@ -77,13 +87,12 @@ class TextCaseConverter(Gimp.PlugIn):
         return False
 
     def do_create_procedure(self, name):
-        # Prefijo numérico para forzar orden alfabético en el menú de GIMP
         info = {
-            "text-case-uppercase": (msg("1. MAYÚSCULAS", "1. UPPERCASE"),  "upper"),
-            "text-case-lowercase": (msg("2. minúsculas",  "2. lowercase"),  "lower"),
-            "text-case-titlecase": (msg("3. Título",      "3. Title Case"), "title"),
-            "text-case-swapcase":  (msg("4. iNVERTIR",    "4. sWAP cASE"), "swap"),
-            "text-case-sentence":  (msg("5. Oración",     "5. Sentence"),   "sentence"),
+            "text-case-uppercase": (msg("1. AA - MAYÚSCULAS", "1. AA - UPPERCASE"),  "upper"),
+            "text-case-lowercase": (msg("2. aa - minúsculas",  "2. aa - lowercase"),  "lower"),
+            "text-case-titlecase": (msg("3. Aa - Título",      "3. Aa - Title Case"), "title"),
+            "text-case-swapcase":  (msg("4. aA - iNVERTIR",   "4. aA - sWAP cASE"),  "swap"),
+            "text-case-sentence":  (msg("5. Aaa - Oración",   "5. Aaa - Sentence"),   "sentence"),
         }
         label, modo = info[name]
 
@@ -93,7 +102,8 @@ class TextCaseConverter(Gimp.PlugIn):
             self._run, modo
         )
         procedure.set_image_types("*")
-        procedure.set_sensitivity_mask(Gimp.ProcedureSensitivityMask.DRAWABLE)
+        # ALWAYS — siempre activo sin importar qué capas estén seleccionadas
+        procedure.set_sensitivity_mask(Gimp.ProcedureSensitivityMask.ALWAYS)
         procedure.set_menu_label(label)
         procedure.add_menu_path(msg(
             "<Image>/Texto/Convertir Caso",
@@ -105,7 +115,7 @@ class TextCaseConverter(Gimp.PlugIn):
 
     def _run(self, procedure, run_mode, image, drawables, config, modo):
         try:
-            convertir_texto(image, modo)
+            convertir_texto(image, drawables, modo)
         except Exception as e:
             Gimp.message(f"Error: {e}")
             return procedure.new_return_values(
