@@ -4,8 +4,6 @@
 # Instalador para Linux / Installer for Linux
 # =============================================================================
 
-set -e
-
 PLUGIN_NAME="text-case-converter"
 GIMP_CONFIG="$HOME/.config/GIMP"
 
@@ -46,15 +44,6 @@ if ! command -v gimp &>/dev/null; then
 fi
 
 GIMP_VERSION=$(gimp --version 2>/dev/null | grep -oP '\d+\.\d+\.\d+' | head -1)
-MAJOR=$(echo "$GIMP_VERSION" | cut -d. -f1)
-MINOR=$(echo "$GIMP_VERSION" | cut -d. -f2)
-PATCH=$(echo "$GIMP_VERSION" | cut -d. -f3)
-
-if [[ "$MAJOR" -lt 3 ]] || { [[ "$MAJOR" -eq 3 ]] && [[ "$MINOR" -eq 0 ]] && [[ "$PATCH" -lt 2 ]]; }; then
-    print_err "Se requiere GIMP 3.0.2 o superior / GIMP 3.0.2 or higher required."
-    print_warn "Tu versión / Your version: $GIMP_VERSION"
-    exit 1
-fi
 print_ok "GIMP v$GIMP_VERSION ✓"
 echo ""
 
@@ -66,7 +55,6 @@ PLUGIN_SRC="$SCRIPT_DIR/$PLUGIN_NAME"
 
 if [[ ! -d "$PLUGIN_SRC" ]]; then
     print_err "No se encontró la carpeta '$PLUGIN_NAME' junto a este script."
-    print_err "Folder '$PLUGIN_NAME' not found next to this script."
     echo ""
     echo "  Estructura esperada / Expected structure:"
     echo "    text-case-converter-Gimp/"
@@ -85,51 +73,50 @@ fi
 print_ok "Carpeta del plugin encontrada / Plugin folder found ✓"
 echo ""
 
-# 3. Instalar en todas las versiones de GIMP encontradas
-# Install in all GIMP versions found
+# 3. Buscar versiones e instalar / Find versions and install
 echo -e "${BOLD}[3/3] Instalando plugin / Installing plugin...${NC}"
 
-# Buscar carpetas de versiones GIMP en ~/.config/GIMP/
-# Search for GIMP version folders in ~/.config/GIMP/
 VERSIONES=()
 if [[ -d "$GIMP_CONFIG" ]]; then
-    while IFS= read -r -d '' dir; do
+    for dir in "$GIMP_CONFIG"/*/; do
+        [[ -d "$dir" ]] || continue
         version=$(basename "$dir")
-        # Solo carpetas que empiecen con 3. (ej: 3.0, 3.2)
-        if [[ "$version" =~ ^3\. ]]; then
+        if [[ "$version" =~ ^3\.[0-9] ]]; then
             VERSIONES+=("$version")
         fi
-    done < <(find "$GIMP_CONFIG" -maxdepth 1 -mindepth 1 -type d -print0)
+    done
 fi
 
-# Si no se encontró ninguna, crear 3.0 por defecto
 if [[ ${#VERSIONES[@]} -eq 0 ]]; then
-    print_warn "No se encontraron carpetas de GIMP en $GIMP_CONFIG"
-    print_warn "Creando carpeta por defecto / Creating default folder: 3.0"
+    print_warn "No se encontraron carpetas de GIMP, creando 3.0 por defecto..."
     VERSIONES=("3.0")
 fi
+
+print_info "Versiones encontradas / Versions found: ${VERSIONES[*]}"
+echo ""
 
 INSTALADOS=0
 
 for VERSION in "${VERSIONES[@]}"; do
     PLUGIN_DST="$GIMP_CONFIG/$VERSION/plug-ins/$PLUGIN_NAME"
 
-    echo ""
-    print_info "Instalando en GIMP $VERSION / Installing in GIMP $VERSION..."
+    print_info "Instalando en GIMP $VERSION..."
+
     mkdir -p "$GIMP_CONFIG/$VERSION/plug-ins"
 
     if [[ -d "$PLUGIN_DST" ]]; then
-        print_warn "Instalación previa encontrada, reemplazando / Previous install found, replacing..."
+        print_warn "Instalación previa encontrada, reemplazando..."
         rm -rf "$PLUGIN_DST"
     fi
 
     cp -r "$PLUGIN_SRC" "$PLUGIN_DST"
     chmod +x "$PLUGIN_DST/$PLUGIN_NAME.py"
     print_ok "GIMP $VERSION → $PLUGIN_DST ✓"
-    (( INSTALADOS++ ))
+    echo ""
+
+    INSTALADOS=$((INSTALADOS + 1))
 done
 
-echo ""
 echo -e "${GREEN}${BOLD}================================================${NC}"
 echo -e "${GREEN}${BOLD}  ✔  Instalado en $INSTALADOS versión(es) de GIMP  ${NC}"
 echo -e "${GREEN}${BOLD}================================================${NC}"
@@ -137,6 +124,6 @@ echo ""
 echo -e "  ${BOLD}Próximos pasos / Next steps:${NC}"
 echo -e "  1. Reinicia GIMP / Restart GIMP"
 echo -e "  2. Ve al menú / Go to menu:"
-echo -e "     ${CYAN}🇪🇸 Texto → Convertir Caso${NC}"
-echo -e "     ${CYAN}🇬🇧 Text  → Convert Case${NC}"
+echo -e "     ${CYAN} Texto → Convertir Caso${NC}"
+echo -e "     ${CYAN} Text  → Convert Case${NC}"
 echo ""
