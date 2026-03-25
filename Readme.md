@@ -10,11 +10,11 @@
 
 | Modo / Mode | Ejemplo / Example |
 |---|---|
-| **1. MAYÚSCULAS / UPPERCASE** | `hola mundo` → `HOLA MUNDO` |
-| **2. minúsculas / lowercase** | `HOLA MUNDO` → `hola mundo` |
-| **3. Título / Title Case** | `hola mundo` → `Hola Mundo` |
-| **4. iNVERTIR / sWAP cASE** | `Hola Mundo` → `hOLA mUNDO` |
-| **5. Oración / Sentence** | `hola mundo` → `Hola mundo` |
+| **1. AA - MAYÚSCULAS / UPPERCASE** | `hola mundo` → `HOLA MUNDO` |
+| **2. aa - minúsculas / lowercase** | `HOLA MUNDO` → `hola mundo` |
+| **3. Aa - Título / Title Case** | `hola mundo` → `Hola Mundo` |
+| **4. aA - iNVERTIR / sWAP cASE** | `Hola Mundo` → `hOLA mUNDO` |
+| **5. Aaa - Oración / Sentence** | `hola mundo` → `Hola mundo` |
 
 - 🌐 **Bilingüe automático** — detecta si tu sistema está en español o inglés
 - ↩️ **Soporte de Deshacer** — `Ctrl+Z` revierte el cambio
@@ -28,7 +28,7 @@
 | | |
 |---|---|
 | **GIMP** | 3.0.2 o superior / or higher ⚠️ |
-| **SO / OS** | Linux |
+| **SO / OS** | Windows, Linux, macOS |
 | **Python** | Incluido en GIMP / Bundled with GIMP |
 
 > ⚠️ GIMP 3.0.0 y 3.0.1 tienen un bug en el soporte de Python. Usa **GIMP 3.0.2 o superior**.
@@ -39,7 +39,33 @@
 
 ## 🚀 Instalación / Installation
 
-### ⚡ Automática / Automatic (recomendada)
+### 📂 Carpeta de plugins de GIMP / GIMP plugins folder
+
+Copia la carpeta `text-case-converter/` en la ruta correspondiente a tu sistema:
+
+> Copy the `text-case-converter/` folder to the path for your operating system:
+
+| SO / OS | Ruta / Path |
+|---|---|
+| 🪟 **Windows** | `%APPDATA%\GIMP\3.0\plug-ins\` |
+| 🐧 **Linux** | `~/.config/GIMP/3.0/plug-ins/` |
+| 🍎 **macOS** | `~/Library/Application Support/GIMP/3.0/plug-ins/` |
+
+> 💡 Si tienes varias versiones de GIMP (3.0, 3.2...) repite el proceso en cada carpeta de versión.
+>
+> If you have multiple GIMP versions (3.0, 3.2...) repeat the process for each version folder.
+
+La estructura final debe quedar así / The final structure should look like this:
+
+```
+plug-ins/
+└── text-case-converter/
+    └── text-case-converter.py
+```
+
+---
+
+### ⚡ Automática / Automatic (recomendada — solo Linux)
 
 ```bash
 git clone https://github.com/CodigoCristo/text-case-converter-Gimp.git
@@ -54,11 +80,7 @@ El script detecta automáticamente todas las versiones de GIMP instaladas (3.0, 
 
 ---
 
-### 🛠️ Manual desde terminal / Manual from terminal
-
-Si prefieres instalar manualmente, ejecuta los siguientes comandos según las versiones de GIMP que tengas instaladas:
-
-> If you prefer to install manually, run the following commands depending on your installed GIMP versions:
+### 🛠️ Manual desde terminal / Manual from terminal (Linux)
 
 **GIMP 3.0**
 ```bash
@@ -72,24 +94,6 @@ chmod +x ~/.config/GIMP/3.0/plug-ins/text-case-converter/text-case-converter.py
 mkdir -p ~/.config/GIMP/3.2/plug-ins/text-case-converter
 cp text-case-converter/text-case-converter.py ~/.config/GIMP/3.2/plug-ins/text-case-converter/
 chmod +x ~/.config/GIMP/3.2/plug-ins/text-case-converter/text-case-converter.py
-```
-
-> 💡 Ejecuta solo los comandos de la versión que tengas instalada, o ambos si tienes las dos.
->
-> Run only the commands for the version you have installed, or both if you have both.
-
-La estructura final debe quedar así / The final structure should look like this:
-
-```
-~/.config/GIMP/
-├── 3.0/
-│   └── plug-ins/
-│       └── text-case-converter/
-│           └── text-case-converter.py
-└── 3.2/
-    └── plug-ins/
-        └── text-case-converter/
-            └── text-case-converter.py
 ```
 
 Reinicia GIMP y el menú aparecerá en / Restart GIMP and the menu will appear at:
