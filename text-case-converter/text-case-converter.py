@@ -102,8 +102,10 @@ class TextCaseConverter(Gimp.PlugIn):
             self._run, modo
         )
         procedure.set_image_types("*")
-        # ALWAYS — siempre activo sin importar qué capas estén seleccionadas
-        procedure.set_sensitivity_mask(Gimp.ProcedureSensitivityMask.ALWAYS)
+        procedure.set_sensitivity_mask(
+            Gimp.ProcedureSensitivityMask.DRAWABLE |
+            Gimp.ProcedureSensitivityMask.DRAWABLES
+        )
         procedure.set_menu_label(label)
         procedure.add_menu_path(msg(
             "<Image>/Texto/Convertir Caso",
